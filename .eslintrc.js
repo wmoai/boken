@@ -1,3 +1,5 @@
+var path = require('path');
+
 module.exports = {
   "env": {
     "browser": true,
@@ -7,6 +9,7 @@ module.exports = {
   },
   "extends": [
     "plugin:@typescript-eslint/recommended",
+    "plugin:prettier/recommended",
   ],
   "globals": {
     "Atomics": "readonly",
@@ -18,7 +21,7 @@ module.exports = {
     },
     "ecmaVersion": 2018,
     "sourceType": "module",
-    "project": "./tsconfig.json"
+    "project": path.resolve(__dirname, './tsconfig.json'),
   },
   "plugins": [
     "@typescript-eslint",

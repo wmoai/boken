@@ -9,7 +9,8 @@
     "noEmitOnError": false,
     "baseUrl": ".",
     "paths": {
-      "react-pixi-fiber": ["node_modules/react-pixi-fiber/index.d.ts"]
+      "react-pixi-fiber": ["./node_modules/react-pixi-fiber/index.d.ts"],
+      "redux": ["./node_modules/redux/index.d.ts"]
     }
   }
 }

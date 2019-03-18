@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Container, TilingSprite } from "react-pixi-fiber";
+import { Container, TilingSprite } from 'react-pixi-fiber';
 import * as PIXI from 'pixi.js';
 
 import { Area } from './Canvas';
@@ -14,7 +14,7 @@ interface AppProps {
   y: number;
   scale: number;
   displayArea: Area;
-};
+}
 
 const canvas = document.createElement('canvas');
 const size = 100;

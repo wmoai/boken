@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { Stage, AppContext } from 'react-pixi-fiber';
 
-import App from './App';
+import App from '../App';
 
 export interface Area {
   x: number;
@@ -10,26 +10,30 @@ export interface Area {
   height: number;
 }
 
-interface CanvasState {
-  width: number;
-  height: number;
+interface CanvasProps {
   x: number;
   y: number;
   scale: number;
+  updateScreen: (x: number, y: number, scale: number) => void;
+}
+
+interface CanvasState {
+  width: number;
+  height: number;
   displayArea: Area;
 }
 
-export default class Canvas extends React.PureComponent<{}, CanvasState> {
+export default class Canvas extends React.PureComponent<
+  CanvasProps,
+  CanvasState
+> {
   private resizeListener: (e: Event) => void;
 
-  protected constructor(props: {}) {
+  public constructor(props: CanvasProps) {
     super(props);
     this.state = {
       width: 800,
       height: 600,
-      x: 0,
-      y: 0,
-      scale: 1,
       displayArea: {
         x: 0,
         y: 0,
@@ -48,26 +52,25 @@ export default class Canvas extends React.PureComponent<{}, CanvasState> {
       'mousewheel',
       (e: WheelEvent) => {
         e.preventDefault();
+        const { x, y, scale } = this.props;
         if (e.ctrlKey) {
-          const deltaScale = this.state.scale * 0.08;
+          const deltaScale = scale * 0.06;
           const sign = e.deltaY >= 0 ? 1 : -1;
 
           const newScale = Math.min(
             4,
-            Math.max(0.2, this.state.scale - deltaScale * sign),
+            Math.max(0.2, scale - deltaScale * sign),
           );
-          const rate = newScale / this.state.scale;
-          this.setState({
-            x: (this.state.x - e.offsetX) * rate + e.offsetX,
-            y: (this.state.y - e.offsetY) * rate + e.offsetY,
-            scale: newScale,
-          });
+          const rate = newScale / scale;
+          this.props.updateScreen(
+            (x - e.offsetX) * rate + e.offsetX,
+            (y - e.offsetY) * rate + e.offsetY,
+            newScale,
+          );
           this.updateDisplayArea();
         } else {
-          this.setState({
-            x: this.state.x - e.deltaX,
-            y: this.state.y - e.deltaY,
-          });
+          this.props.updateScreen(x - e.deltaX, y - e.deltaY, scale);
+
           this.updateDisplayArea();
         }
       },
@@ -77,7 +80,8 @@ export default class Canvas extends React.PureComponent<{}, CanvasState> {
 
   private updateDisplayArea(): void {
     requestAnimationFrame(() => {
-      const { width, height, x, y, scale } = this.state;
+      const { x, y, scale } = this.props;
+      const { width, height } = this.state;
       this.setState({
         displayArea: {
           x: -x / scale,
@@ -105,7 +109,15 @@ export default class Canvas extends React.PureComponent<{}, CanvasState> {
         options={{ backgroundColor: 0xf8f8f8 }}
       >
         <AppContext.Consumer>
-          {app => <App {...this.state} app={app} />}
+          {app => (
+            <App
+              x={this.props.x}
+              y={this.props.y}
+              scale={this.props.scale}
+              {...this.state}
+              app={app}
+            />
+          )}
         </AppContext.Consumer>
       </Stage>
     );

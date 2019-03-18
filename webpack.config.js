@@ -15,13 +15,15 @@ module.exports = {
           { loader: 'ts-loader' },
         ]
       },
-      {
-        test: /\.(js|jsx)$/,
-        loader: 'babel-loader',
-      }
     ]
   },
   resolve: {
-    extensions: [ '.tsx', '.ts', '.js' ]
+    extensions: [ '.tsx', '.ts', '.js' ],
+    alias: {
+      actions: path.resolve('src/actions'),
+      components: path.resolve('src/components'),
+      containers: path.resolve('src/containers'),
+      reducers: path.resolve('src/reducers'),
+    },
   },
 };
