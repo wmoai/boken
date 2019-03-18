@@ -2,18 +2,12 @@ import * as React from 'react';
 import { Container, TilingSprite } from 'react-pixi-fiber';
 import * as PIXI from 'pixi.js';
 
-import { Area } from './Canvas';
-// import Texts from './Texts';
-import You from './You';
-
-interface AppProps {
+interface BackgroundProps {
   width: number;
   height: number;
-  app: PIXI.Application;
   x: number;
   y: number;
   scale: number;
-  displayArea: Area;
 }
 
 const canvas = document.createElement('canvas');
@@ -29,9 +23,9 @@ ctx.lineTo(0, 0);
 ctx.lineTo(size, 0);
 ctx.stroke();
 
-export default class App extends React.Component<AppProps> {
+export default class Background extends React.Component<BackgroundProps> {
   public render(): React.ReactNode {
-    const { width, height, x, y, scale, displayArea } = this.props;
+    const { width, height, x, y, scale } = this.props;
     return (
       <Container>
         <TilingSprite
@@ -41,10 +35,6 @@ export default class App extends React.Component<AppProps> {
           tilePosition={new PIXI.Point(x, y)}
           tileScale={new PIXI.Point(scale, scale)}
         />
-        <Container x={x} y={y} scale={new PIXI.Point(scale, scale)}>
-          {/**<Texts {...displayArea} scale={scale} />**/}
-          <You x={0} y={0} />
-        </Container>
       </Container>
     );
   }

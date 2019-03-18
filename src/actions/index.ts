@@ -2,7 +2,8 @@ import { Action } from 'redux';
 
 export enum ActionTypes {
   UPDATE_SCREEN = 'UPDATE_SCREEN',
-  TEST = 'TEST',
+  RESIZE_SCREEN = 'RESIZE_SCREEN',
+  MOVE = 'MOVE',
 }
 
 interface UpdateScreenAction extends Action {
@@ -24,4 +25,38 @@ export function updateScreen(
   };
 }
 
-export type ScreenActions = UpdateScreenAction;
+interface ResizeScreenAction extends Action {
+  type: ActionTypes.RESIZE_SCREEN;
+  payload: {
+    width: number;
+    height: number;
+  };
+}
+export function resizeScreen(
+  width: number,
+  height: number,
+): ResizeScreenAction {
+  return {
+    type: ActionTypes.RESIZE_SCREEN,
+    payload: { width, height },
+  };
+}
+
+interface MoveAction extends Action {
+  type: ActionTypes.MOVE;
+  payload: {
+    x: number;
+    y: number;
+  };
+}
+export function move(x: number, y: number): MoveAction {
+  return {
+    type: ActionTypes.MOVE,
+    payload: {
+      x,
+      y,
+    },
+  };
+}
+
+export type Actions = UpdateScreenAction | ResizeScreenAction | MoveAction;

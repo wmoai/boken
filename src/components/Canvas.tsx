@@ -1,7 +1,9 @@
 import * as React from 'react';
+import { Provider, ReactReduxContext } from 'react-redux';
 import { Stage, AppContext } from 'react-pixi-fiber';
 
-import App from '../App';
+import Screen from 'containers/Screen';
+import { context } from 'components/canvasContext';
 
 export interface Area {
   x: number;
@@ -11,15 +13,16 @@ export interface Area {
 }
 
 interface CanvasProps {
+  width: number;
+  height: number;
   x: number;
   y: number;
   scale: number;
   updateScreen: (x: number, y: number, scale: number) => void;
+  resizeWindow: (width: number, height: number) => void;
 }
 
 interface CanvasState {
-  width: number;
-  height: number;
   displayArea: Area;
 }
 
@@ -32,8 +35,6 @@ export default class Canvas extends React.PureComponent<
   public constructor(props: CanvasProps) {
     super(props);
     this.state = {
-      width: 800,
-      height: 600,
       displayArea: {
         x: 0,
         y: 0,
@@ -41,12 +42,12 @@ export default class Canvas extends React.PureComponent<
         height: 600,
       },
     };
-    this.resizeListener = this.resize.bind(this);
+    this.resizeListener = this.fitCanvasSizeToWindow.bind(this);
   }
 
   public componentDidMount(): void {
     addEventListener('resize', this.resizeListener);
-    this.resize();
+    this.fitCanvasSizeToWindow();
     this.updateDisplayArea();
     window.addEventListener(
       'mousewheel',
@@ -80,8 +81,7 @@ export default class Canvas extends React.PureComponent<
 
   private updateDisplayArea(): void {
     requestAnimationFrame(() => {
-      const { x, y, scale } = this.props;
-      const { width, height } = this.state;
+      const { width, height, x, y, scale } = this.props;
       this.setState({
         displayArea: {
           x: -x / scale,
@@ -93,33 +93,38 @@ export default class Canvas extends React.PureComponent<
     });
   }
 
-  private resize(): void {
-    this.setState({
-      width: window.innerWidth,
-      height: window.innerHeight,
-    });
+  private fitCanvasSizeToWindow(): void {
+    this.props.resizeWindow(window.innerWidth, window.innerHeight);
   }
 
   public render(): React.ReactNode {
-    const { width, height } = this.state;
+    const { width, height, x, y } = this.props;
     return (
-      <Stage
-        width={width}
-        height={height}
-        options={{ backgroundColor: 0xf8f8f8 }}
-      >
-        <AppContext.Consumer>
-          {app => (
-            <App
-              x={this.props.x}
-              y={this.props.y}
-              scale={this.props.scale}
-              {...this.state}
-              app={app}
-            />
-          )}
-        </AppContext.Consumer>
-      </Stage>
+      <ReactReduxContext.Consumer>
+        {({ store }) => (
+          <Stage
+            width={width}
+            height={height}
+            options={{ backgroundColor: 0xf8f8f8 }}
+          >
+            <AppContext.Consumer>
+              {app => (
+                <Provider store={store} context={context}>
+                  <Screen
+                    width={width}
+                    height={height}
+                    x={x}
+                    y={y}
+                    scale={this.props.scale}
+                    displayArea={this.state.displayArea}
+                    app={app}
+                  />
+                </Provider>
+              )}
+            </AppContext.Consumer>
+          </Stage>
+        )}
+      </ReactReduxContext.Consumer>
     );
   }
 }
