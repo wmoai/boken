@@ -13,7 +13,6 @@ interface ScreenProps {
   x: number;
   y: number;
   scale: number;
-  displayArea: Area;
   you: {
     x: number;
     y: number;
@@ -31,6 +30,7 @@ export default class Screen extends React.Component<ScreenProps> {
       const pointY = (e.data.global.y - y) / scale;
       this.props.move(pointX, pointY);
     });
+    this.props.app.ticker.add((d: number) => {});
   }
 
   public render(): React.ReactNode {

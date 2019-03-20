@@ -41,7 +41,6 @@ export default function reducer(state = initialState, action: Actions): State {
     }
     case ActionTypes.MOVE: {
       const { x, y } = action.payload;
-      console.log(x, y);
       return { ...state, you: { x, y } };
     }
     default:

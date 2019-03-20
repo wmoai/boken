@@ -1,9 +1,5 @@
 import * as React from 'react';
-import { Provider, ReactReduxContext } from 'react-redux';
-import { Stage, AppContext } from 'react-pixi-fiber';
-
-import Screen from 'containers/Screen';
-import { context } from 'components/canvasContext';
+import * as PIXI from 'pixi.js';
 
 export interface Area {
   x: number;
@@ -22,7 +18,16 @@ interface CanvasProps {
   resizeWindow: (width: number, height: number) => void;
 }
 
-export default class Canvas extends React.PureComponent<CanvasProps> {
+interface CanvasState {
+  displayArea: Area;
+}
+
+export default class Canvas extends React.PureComponent<
+  CanvasProps,
+  CanvasState
+> {
+  private canvas: HTMLCanvasElement;
+  private application: PIXI.Application;
   private resizeListener: (e: Event) => void;
 
   public constructor(props: CanvasProps) {
@@ -39,8 +44,16 @@ export default class Canvas extends React.PureComponent<CanvasProps> {
   }
 
   public componentDidMount(): void {
+    const { width, height } = this.props;
     addEventListener('resize', this.resizeListener);
     this.fitCanvasSizeToWindow();
+    this.updateDisplayArea();
+    this.application = new PIXI.Application({
+      width,
+      height,
+      view: this.canvas,
+      backgroundColor: 0xf8f8f8,
+    });
     window.addEventListener(
       'mousewheel',
       (e: WheelEvent) => {
@@ -60,12 +73,29 @@ export default class Canvas extends React.PureComponent<CanvasProps> {
             (y - e.offsetY) * rate + e.offsetY,
             newScale,
           );
+          this.updateDisplayArea();
         } else {
           this.props.updateScreen(x - e.deltaX, y - e.deltaY, scale);
+
+          this.updateDisplayArea();
         }
       },
       { passive: false },
     );
+  }
+
+  private updateDisplayArea(): void {
+    requestAnimationFrame(() => {
+      const { width, height, x, y, scale } = this.props;
+      this.setState({
+        displayArea: {
+          x: -x / scale,
+          y: -y / scale,
+          width: width / scale,
+          height: height / scale,
+        },
+      });
+    });
   }
 
   private fitCanvasSizeToWindow(): void {
@@ -73,32 +103,13 @@ export default class Canvas extends React.PureComponent<CanvasProps> {
   }
 
   public render(): React.ReactNode {
-    const { width, height, x, y } = this.props;
+    const { width, height } = this.props;
     return (
-      <ReactReduxContext.Consumer>
-        {({ store }) => (
-          <Stage
-            width={width}
-            height={height}
-            options={{ backgroundColor: 0xf8f8f8 }}
-          >
-            <AppContext.Consumer>
-              {app => (
-                <Provider store={store} context={context}>
-                  <Screen
-                    width={width}
-                    height={height}
-                    x={x}
-                    y={y}
-                    scale={this.props.scale}
-                    app={app}
-                  />
-                </Provider>
-              )}
-            </AppContext.Consumer>
-          </Stage>
-        )}
-      </ReactReduxContext.Consumer>
+      <canvas
+        width={width}
+        height={height}
+        ref={elem => (this.canvas = elem)}
+      />
     );
   }
 }

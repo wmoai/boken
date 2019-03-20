@@ -1,6 +1,6 @@
 import { connect } from 'react-redux';
 
-import Canvas from 'components/Canvas3';
+import Canvas from 'components/Canvas2';
 import { State } from 'reducers/index';
 import { updateScreen, resizeScreen } from 'actions/index';
 
